@@ -4,6 +4,48 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Sathish Reddy &amp; Tulasi · Wedding Invitation</title>
+
+    <!-- ===== SEO ===== -->
+    <meta
+      name="description"
+      content="Join us in celebrating the wedding of Sathish Reddy &amp; Tulasi on Thursday, 27th August 2026 at Bakkireddypalem Village, Chimakurthy Mdl, Prakasam Dt., Andhra Pradesh. Sumuhurtham at 11:40 PM."
+    />
+    <meta name="author" content="Gangireddy's" />
+    <meta name="robots" content="index, follow" />
+    <meta name="theme-color" content="#7a1a12" />
+    <link rel="canonical" href="https://saravanepic.github.io/Sathish-Tulasi/" />
+
+    <!-- ===== Favicon ===== -->
+    <link
+      rel="icon"
+      type="image/svg+xml"
+      href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='12' fill='%237a1a12'/%3E%3Ctext x='32' y='44' font-size='36' text-anchor='middle' fill='%23f0d77b'%3E%E0%A5%90%3C/text%3E%3C/svg%3E"
+    />
+
+    <!-- ===== Open Graph / Facebook, WhatsApp ===== -->
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content="Sathish Reddy &amp; Tulasi Wedding" />
+    <meta property="og:title" content="Sathish Reddy &amp; Tulasi · Wedding Invitation" />
+    <meta
+      property="og:description"
+      content="Subhamasthu ◆ Kalyanamasthu — We invite you to celebrate the wedding of Sathish Reddy &amp; Tulasi on Thursday, 27th August 2026 at Bakkireddypalem Village, Prakasam Dt., Andhra Pradesh."
+    />
+    <meta property="og:url" content="https://saravanepic.github.io/Sathish-Tulasi/" />
+    <meta property="og:image" content="https://saravanepic.github.io/Sathish-Tulasi/assets/og-image.png" />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+    <meta property="og:image:alt" content="Sathish Reddy &amp; Tulasi Wedding Invitation — Thursday, 27th August 2026" />
+    <meta property="og:locale" content="en_IN" />
+
+    <!-- ===== Twitter Card ===== -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content="Sathish Reddy &amp; Tulasi · Wedding Invitation" />
+    <meta
+      name="twitter:description"
+      content="Subhamasthu ◆ Kalyanamasthu — Thursday, 27th August 2026 · Bakkireddypalem Village, Prakasam Dt., Andhra Pradesh."
+    />
+    <meta name="twitter:image" content="https://saravanepic.github.io/Sathish-Tulasi/assets/og-image.png" />
+
     <link rel="preconnect" href="https://fonts.googleapis.com" />
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
     <link
@@ -167,6 +209,39 @@
         50% {
           transform: translate(-50%, 8px);
         }
+      }
+
+      /* ================= MUSIC TOGGLE ================= */
+      .mute-btn {
+        position: fixed;
+        top: 16px;
+        right: 16px;
+        z-index: 60;
+        width: 44px;
+        height: 44px;
+        border-radius: 50%;
+        border: 1.5px solid rgba(240, 215, 123, 0.55);
+        background: linear-gradient(
+          160deg,
+          rgba(122, 26, 18, 0.85),
+          rgba(139, 90, 43, 0.85)
+        );
+        color: var(--gold-light);
+        font-size: 1.2rem;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        cursor: pointer;
+        box-shadow: var(--shadow-soft);
+        backdrop-filter: blur(4px);
+        -webkit-backdrop-filter: blur(4px);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+      }
+      .mute-btn:active {
+        transform: scale(0.92);
+      }
+      .mute-btn.muted {
+        color: rgba(240, 215, 123, 0.55);
       }
 
       /* petals floating in hero */
@@ -1025,7 +1100,8 @@
         .scroll-cue,
         .petal,
         .rsvp-card,
-        .btn {
+        .btn,
+        .mute-btn {
           display: none !important;
         }
         * {
@@ -1038,6 +1114,21 @@
     </style>
   </head>
   <body>
+    <!-- ================= BACKGROUND MUSIC ================= -->
+    <audio id="bgm" loop playsinline preload="auto" autoplay muted>
+      <source src="assets/wedding-song.mp3" type="audio/mpeg" />
+      <source src="assets/wedding-song.ogg" type="audio/ogg" />
+    </audio>
+    <button
+      class="mute-btn"
+      id="muteBtn"
+      type="button"
+      aria-label="Mute background music"
+      aria-pressed="false"
+    >
+      <span aria-hidden="true">&#128266;</span>
+    </button>
+
     <!-- ================= HERO ================= -->
     <header class="hero" id="top">
       <div id="petals" aria-hidden="true"></div>
@@ -1300,6 +1391,60 @@
       }
       tick();
       var timer = setInterval(tick, 1000);
+
+      // ----- Background music -----
+      (function () {
+        var bgm = document.getElementById("bgm");
+        var btn = document.getElementById("muteBtn");
+        var icon = btn.querySelector("span");
+        var userMuted = false;
+
+        function refreshIcon() {
+          var silent = bgm.muted || bgm.paused;
+          icon.innerHTML = silent ? "&#128263;" : "&#128266;";
+          btn.setAttribute("aria-pressed", String(silent));
+          btn.setAttribute(
+            "aria-label",
+            silent ? "Play background music" : "Mute background music",
+          );
+          btn.classList.toggle("muted", silent);
+        }
+
+        // Browsers only allow autoplay when muted, so start silently right
+        // away (this always succeeds) and unmute on the visitor's very
+        // first interaction with the page — tap, scroll, or key press.
+        bgm.muted = true;
+        bgm.play().catch(function () {});
+        refreshIcon();
+
+        function unlockSound() {
+          if (userMuted) return;
+          bgm.muted = false;
+          if (bgm.paused) bgm.play().catch(function () {});
+          refreshIcon();
+        }
+        ["click", "touchstart", "keydown", "scroll", "pointerdown"].forEach(
+          function (evt) {
+            document.addEventListener(evt, unlockSound, {
+              once: true,
+              passive: true,
+            });
+          },
+        );
+
+        btn.addEventListener("click", function (e) {
+          e.stopPropagation();
+          bgm.muted = !bgm.muted;
+          userMuted = bgm.muted;
+          if (!bgm.muted && bgm.paused) {
+            bgm.play().catch(function () {});
+          }
+          refreshIcon();
+        });
+
+        bgm.addEventListener("play", refreshIcon);
+        bgm.addEventListener("pause", refreshIcon);
+      })();
 
       // ----- Reveal on scroll -----
       var io = new IntersectionObserver(

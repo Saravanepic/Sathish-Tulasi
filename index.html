@@ -84,6 +84,23 @@
         font-family: var(--font-body);
         color: var(--ink);
         line-height: 1.55;
+        background: #5c1010;
+        overflow-x: hidden;
+      }
+
+      /* ================= BACKGROUND VIDEO ================= */
+      .bg-video {
+        position: fixed;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        z-index: -2;
+      }
+      .bg-overlay {
+        position: fixed;
+        inset: 0;
+        z-index: -1;
         background: radial-gradient(
             circle at 20% 0%,
             rgba(232, 163, 23, 0.18),
@@ -100,8 +117,15 @@
             transparent 2px 22px
           ),
           linear-gradient(160deg, #5c1010, #7a1a12 40%, #8b5a2b 120%);
-        background-attachment: fixed;
-        overflow-x: hidden;
+        opacity: 0.86;
+      }
+      @media (prefers-reduced-motion: reduce) {
+        .bg-video {
+          display: none;
+        }
+        .bg-overlay {
+          opacity: 1;
+        }
       }
 
       /* ===== shared reveal-on-scroll ===== */
@@ -1114,16 +1138,16 @@
     </style>
   </head>
   <body>
-    <!-- ================= BACKGROUND MUSIC ================= -->
-    <audio id="bgm" loop playsinline preload="auto" autoplay muted>
-      <source src="assets/wedding-song.mp3" type="audio/mpeg" />
-      <source src="assets/wedding-song.ogg" type="audio/ogg" />
-    </audio>
+    <!-- ================= BACKGROUND VIDEO (with sound) ================= -->
+    <video id="bgVideo" class="bg-video" autoplay muted loop playsinline preload="auto" aria-hidden="true">
+      <source src="assets/cideo.mp4" type="video/mp4" />
+    </video>
+    <div class="bg-overlay" aria-hidden="true"></div>
     <button
       class="mute-btn"
       id="muteBtn"
       type="button"
-      aria-label="Mute background music"
+      aria-label="Mute background video"
       aria-pressed="false"
     >
       <span aria-hidden="true">&#128266;</span>
@@ -1392,20 +1416,20 @@
       tick();
       var timer = setInterval(tick, 1000);
 
-      // ----- Background music -----
+      // ----- Background video sound -----
       (function () {
-        var bgm = document.getElementById("bgm");
+        var bgVideo = document.getElementById("bgVideo");
         var btn = document.getElementById("muteBtn");
         var icon = btn.querySelector("span");
         var userMuted = false;
 
         function refreshIcon() {
-          var silent = bgm.muted || bgm.paused;
+          var silent = bgVideo.muted || bgVideo.paused;
           icon.innerHTML = silent ? "&#128263;" : "&#128266;";
           btn.setAttribute("aria-pressed", String(silent));
           btn.setAttribute(
             "aria-label",
-            silent ? "Play background music" : "Mute background music",
+            silent ? "Play background video sound" : "Mute background video",
           );
           btn.classList.toggle("muted", silent);
         }
@@ -1413,14 +1437,14 @@
         // Browsers only allow autoplay when muted, so start silently right
         // away (this always succeeds) and unmute on the visitor's very
         // first interaction with the page — tap, scroll, or key press.
-        bgm.muted = true;
-        bgm.play().catch(function () {});
+        bgVideo.muted = true;
+        bgVideo.play().catch(function () {});
         refreshIcon();
 
         function unlockSound() {
           if (userMuted) return;
-          bgm.muted = false;
-          if (bgm.paused) bgm.play().catch(function () {});
+          bgVideo.muted = false;
+          if (bgVideo.paused) bgVideo.play().catch(function () {});
           refreshIcon();
         }
         ["click", "touchstart", "keydown", "scroll", "pointerdown"].forEach(
@@ -1434,16 +1458,16 @@
 
         btn.addEventListener("click", function (e) {
           e.stopPropagation();
-          bgm.muted = !bgm.muted;
-          userMuted = bgm.muted;
-          if (!bgm.muted && bgm.paused) {
-            bgm.play().catch(function () {});
+          bgVideo.muted = !bgVideo.muted;
+          userMuted = bgVideo.muted;
+          if (!bgVideo.muted && bgVideo.paused) {
+            bgVideo.play().catch(function () {});
           }
           refreshIcon();
         });
 
-        bgm.addEventListener("play", refreshIcon);
-        bgm.addEventListener("pause", refreshIcon);
+        bgVideo.addEventListener("play", refreshIcon);
+        bgVideo.addEventListener("pause", refreshIcon);
       })();
 
       // ----- Reveal on scroll -----
